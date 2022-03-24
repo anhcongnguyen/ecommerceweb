@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Products, Navbar, Cart } from './components';
+import { Products, Navbar, Cart, Checkout } from './components';
 import { commerce } from './lib/commerce';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
@@ -17,8 +17,23 @@ const App = () => {
     }
 
     const handleAddToCart = async (productId, quanitily) => {
-        const item = await commerce.cart.add(productId, quanitily);
-        setCart(item.cart);
+        const { cart } = await commerce.cart.add(productId, quanitily);
+        setCart(cart);
+    }
+
+    const handleUpdateCartQty = async (productId, quantity) => {
+        const { cart } = await commerce.cart.update(productId, { quantity });
+        setCart(cart);
+    }
+
+    const handleRemoveFromCart = async (productId) => {
+        const { cart } = await commerce.cart.remove(productId);
+        setCart(cart);
+    }
+
+    const handleEmptyCart = async () => {
+        const { cart } = await commerce.cart.empty();
+        setCart(cart);
     }
 
     useEffect(() => {
@@ -32,7 +47,21 @@ const App = () => {
                 <Navbar totalItems={cart.total_items} />
                 <Routes>
                     <Route exact path="/" element={<Products products={products} onAddToCart={handleAddToCart} />} />
-                    <Route exact path="/cart" element={<Cart cart={cart} />} />
+                    <Route
+                        exact path="/cart"
+                        element={
+                            <Cart
+                                cart={cart}
+                                handleEmptyCart={handleEmptyCart}
+                                handleRemoveFromCart={handleRemoveFromCart}
+                                handleUpdateCartQty={handleUpdateCartQty}
+                            />}
+                    />
+                    <Route
+                        exact path="/checkout"
+                        element={
+                            <Checkout />
+                        } />
                 </Routes>
             </div>
         </Router>
